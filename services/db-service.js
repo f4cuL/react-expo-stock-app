@@ -12,8 +12,18 @@ export const initDB = () => {
         );
     });
 };
+export const drop = () => {
+    db.transaction(tx => {
+        tx.executeSql(
+            "DROP TABLE CLOTHES;",
+            [],
+            () => console.log('Table created successfully'),
+            (_, err) => console.error('Failed to create table', err)
+        );
+    });
+};
 
-export const addClothes = async (name, quantity, price) => {
+export const insertClothes = async (name, quantity, price) => {
     db.transaction(tx => {
         tx.executeSql(
             `INSERT INTO clothes(NAME, QUANTITY, PRICE) VALUES("${name}",${quantity},${price});`,
