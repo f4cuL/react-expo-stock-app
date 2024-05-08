@@ -30,10 +30,6 @@ const Form = ({ hideModal, setFlagDB, flagDB }) => {
         }
         return error;
     }
-    
-    const hasErrors = () => {
-        return name == "";
-    };
 
     const addClothes = () => {
         error = validateFields();
