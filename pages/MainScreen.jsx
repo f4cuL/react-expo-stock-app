@@ -8,7 +8,6 @@ import { NativeEventEmitter } from 'react-native';
 
 const eventEmitter = new NativeEventEmitter();
 
-
 const MainScreen = ({ navigation }) => {
     
     const [clothes, setClothes] = useState([]);
@@ -30,7 +29,6 @@ const MainScreen = ({ navigation }) => {
     useEffect(() => {
         getAllClothes().then(data => setClothes(data));
     }, [])
-
 
     return (
         <>

@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Alert, SafeAreaView, ScrollView, StyleSheet } from 'react-native';
 import { Button, Card, MD3Colors, Modal, Portal, Text } from 'react-native-paper';
 import Form from '../components/Form';
+import { deleteClothes } from '../services/db-service';
+import { emitRefreshDataFromDB } from '../services/event-service';
 
 const ItemDetails = ({navigation, route}) => {
 
@@ -11,9 +13,25 @@ const ItemDetails = ({navigation, route}) => {
     const hideModal = () => setVisible(false);
     
     const showPricePlus21 = (price) => {
-        let pricePlus21 = (price + price*0.21).toString();
+        let pricePlus21 = (Number(price) + Number(price)*0.21).toString();
         Alert.alert("Precio sumando 21%", pricePlus21);
     }
+
+    const deleteItem = (item) => {
+        Alert.alert('¡Atención!', `¿Estás seguro que quieres eliminar ${item.name}?`, [
+            {
+                text: 'Cancelar',
+                onPress: () => console.log('Cancel Pressed'),
+                style: 'cancel',
+            },
+            {
+                text: 'Eliminar', onPress: () => deleteClothes(item.id).then(() => {
+                    emitRefreshDataFromDB();
+                    navigation.navigate("Inicio");
+                })
+            },
+        ]);;
+    }  
 
     return (
         <>
@@ -39,7 +57,7 @@ const ItemDetails = ({navigation, route}) => {
                     </Card>
                     <Button icon="delete"
                         mode="contained"
-                        onPress={() => console.log('Pressed')} 
+                        onPress={() => deleteItem(item)} 
                         theme={{ colors: { primary: '#d9534f' }}}>
                             Borrar
                     </Button>

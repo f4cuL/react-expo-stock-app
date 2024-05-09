@@ -1,4 +1,4 @@
-import * as SQLite from 'expo-sqlite';
+import * as SQLite from 'expo-sqlite/legacy';
 
 const db = SQLite.openDatabase('stock-db.db');
 
@@ -22,7 +22,7 @@ export const updateClothes = (name, quantity, price, id) => {
                 price = ${price} 
                 WHERE id = ${id};`,
                 [],
-                () => resolve('Clothes added successfully'),
+                () => resolve('Clothes updated successfully'),
                 (_, err) => reject('Failed to add the data', err)
             );
         });
@@ -42,6 +42,18 @@ export const insertClothes = async (name, quantity, price) => {
     });
 };
 
+export const deleteClothes = async (id) => {
+    return new Promise((resolve, reject) => {
+        db.transaction(tx => {
+            tx.executeSql(
+                `DELETE FROM clothes WHERE id = ${id};`,
+                [],
+                () => resolve('Deleted item succefully'),
+                (_, err) => reject('Failed to add the data', err)
+            );
+        });
+    });
+};
 
 export const getAllClothes = async () => {
     return new Promise((resolve, reject) => {

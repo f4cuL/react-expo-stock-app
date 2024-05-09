@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Alert, NativeEventEmitter, StyleSheet, View } from 'react-native';
 import { Button, HelperText, TextInput } from 'react-native-paper';
 import { insertClothes, updateClothes } from '../services/db-service';
+import { emitRefreshDataFromDB } from '../services/event-service';
 
 
 const Form = ({ hideModal, formAction, item, setItem }) => {
@@ -9,8 +10,6 @@ const Form = ({ hideModal, formAction, item, setItem }) => {
     let initialStateQuantity = item ? item.quantity : "";
     let initialStatePrice = item ? item.price : "";
     
-    
-    const eventEmitter = new NativeEventEmitter();
     const [name, setName] = useState(initialStateName);
     const [quantity, setQuantity] = useState(initialStateQuantity)
     const [price, setPrice] = useState(initialStatePrice)
@@ -56,7 +55,7 @@ const Form = ({ hideModal, formAction, item, setItem }) => {
                 let updatedItem = { ...item, name, quantity, price };
                 setItem(updatedItem);
             });
-            eventEmitter.emit('reload-data', { data: 'Getting data from database' });
+            emitRefreshDataFromDB();
             cancel();
         }
     }
@@ -100,11 +99,11 @@ const Form = ({ hideModal, formAction, item, setItem }) => {
                 La cantidad está vacía
             </HelperText>
             <View style={{ flexDirection: "row", justifyContent: 'center' }}>
-                <Button icon={ formAction === "add" ? "plus-circle" : "square-edit-outline" } mode="contained" onPress={addClothes} style={{ marginRight: 10 }} theme={{ colors: { primary: 'lightgreen' } }}>
-                    { formAction === "add" ? "Añadir" : "Editar" }
-                </Button>
                 <Button icon="cancel" mode="contained" onPress={cancel} style={{ marginRight: 10 }} theme={{ colors: { primary: '#d9534f' } }} >
                     Cancelar
+                </Button>
+                <Button icon={ formAction === "add" ? "plus-circle" : "square-edit-outline" } mode="contained" onPress={addClothes} style={{ marginRight: 10 }} theme={{ colors: { primary: 'lightgreen' } }}>
+                    { formAction === "add" ? "Añadir" : "Editar" }
                 </Button>
             </View>
         </>
