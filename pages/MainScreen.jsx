@@ -3,29 +3,40 @@ import { SafeAreaView, ScrollView, StyleSheet } from 'react-native';
 import { Button, Divider, List, MD3Colors, Modal, Portal } from 'react-native-paper';
 import Form from '../components/Form';
 import { getAllClothes, initDB } from '../services/db-service';
+import { NativeEventEmitter } from 'react-native';
+
+
+const eventEmitter = new NativeEventEmitter();
+
 
 const MainScreen = ({ navigation }) => {
     
     const [clothes, setClothes] = useState([]);
-    const [flagDB, setFlagDB] = useState(false);
-
-    useEffect(() => {
-        initDB();
-    }, [])
-    
-    useEffect(() => {
-        getAllClothes().then(data => setClothes(data));
-    }, [flagDB])
-
     const [visible, setVisible] = useState(false);
     const showModal = () => setVisible(true);
     const hideModal = () => setVisible(false);
-    
+
+    useEffect(() => {
+        initDB();
+        eventEmitter.addListener('reload-data', event => {
+            console.log(event)
+            getAllClothes().then(data => setClothes(data));
+        });
+        return () => {
+            eventEmitter.removeAllListeners("reload-data");
+        }
+    }, [])
+
+    useEffect(() => {
+        getAllClothes().then(data => setClothes(data));
+    }, [])
+
+
     return (
         <>
             <Portal>
                 <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalStyle}>
-                    <Form hideModal={hideModal} setFlagDB={setFlagDB} flagDB={flagDB} />
+                    <Form hideModal={hideModal} formAction={"add"} />
                 </Modal>
             </Portal>
             <SafeAreaView style={styles.safeArea}>

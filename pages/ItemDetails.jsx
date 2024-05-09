@@ -1,32 +1,51 @@
-import React from 'react'
-import { Alert, SafeAreaView, ScrollView, StyleSheet } from 'react-native'
-import { Card, Text, Button } from 'react-native-paper'
+import React, { useEffect, useState } from 'react';
+import { Alert, SafeAreaView, ScrollView, StyleSheet } from 'react-native';
+import { Button, Card, MD3Colors, Modal, Portal, Text } from 'react-native-paper';
+import Form from '../components/Form';
 
 const ItemDetails = ({navigation, route}) => {
 
-    let item = route.params.item;
-
+    const [item, setItem] = useState(route.params.item)
+    const [visible, setVisible] = useState(false);
+    const showModal = () => setVisible(true);
+    const hideModal = () => setVisible(false);
+    
     const showPricePlus21 = (price) => {
         let pricePlus21 = (price + price*0.21).toString();
         Alert.alert("Precio sumando 21%", pricePlus21);
     }
 
     return (
-        <SafeAreaView style={styles.safeArea}>
-            <ScrollView style={styles.container}>
-                <Card>
-                    <Card.Content>
-                        <Text variant="titleLarge">{item.name}</Text>
-                        <Text variant="bodyMedium">${item.price}</Text>
-                        <Text variant="bodyMedium">Cantidad: {item.quantity}</Text>
-                    </Card.Content>
-                    <Card.Actions>
-                        <Button onPress={()=>showPricePlus21(item.price)}>Precio + 21%</Button>
-                        <Button>Editar </Button>
-                    </Card.Actions>
-                </Card>
-            </ScrollView>
-        </SafeAreaView>
+        <>
+            <Portal>
+                    <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modalStyle}>
+                        <Form hideModal={hideModal} formAction={"update"} item={item} flagDB={route.params.flagDB} setFlagDB={route.params.setFlagDB} setItem={setItem} navigation/>
+                    </Modal>
+            </Portal>
+            <SafeAreaView style={styles.safeArea}>
+                <ScrollView style={styles.container}>
+                    <Card>
+                        <Card.Content>
+                            <Text variant="titleLarge">{item.name}</Text>
+                            <Text variant="bodyMedium">${item.price}</Text>
+                            <Text variant="bodyMedium">Cantidad: {item.quantity}</Text>
+                        </Card.Content>
+                        <Card.Actions>
+                            <Button onPress={()=>showPricePlus21(item.price)} icon="percent">Precio + 21%</Button>
+                            <Button icon="square-edit-outline" mode="contained" onPress={showModal}>
+                                Editar
+                            </Button>
+                        </Card.Actions>
+                    </Card>
+                    <Button icon="delete"
+                        mode="contained"
+                        onPress={() => console.log('Pressed')} 
+                        theme={{ colors: { primary: '#d9534f' }}}>
+                            Borrar
+                    </Button>
+                </ScrollView>
+            </SafeAreaView>
+        </>
     )
 }
 
@@ -37,6 +56,12 @@ const styles = StyleSheet.create({
     },
     container : {
         padding: 10
+    },
+    modalStyle: {
+        backgroundColor: MD3Colors.primary0,
+        borderRadius: 15,
+        padding: 20,
+        marginBottom: 200
     }
 })
 

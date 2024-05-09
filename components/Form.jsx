@@ -1,16 +1,23 @@
-import React, { useState } from 'react'
-import { TextInput, Button, HelperText } from 'react-native-paper'
-import { View, StyleSheet, Alert } from 'react-native'
-import { insertClothes } from '../services/db-service';
+import React, { useState } from 'react';
+import { Alert, NativeEventEmitter, StyleSheet, View } from 'react-native';
+import { Button, HelperText, TextInput } from 'react-native-paper';
+import { insertClothes, updateClothes } from '../services/db-service';
 
-const Form = ({ hideModal, setFlagDB, flagDB }) => {
-    const [name, setName] = useState("");
-    const [quantity, setQuantity] = useState("")
-    const [price, setPrice] = useState("")
+
+const Form = ({ hideModal, formAction, item, setItem }) => {
+    let initialStateName = item ? item.name : "";
+    let initialStateQuantity = item ? item.quantity : "";
+    let initialStatePrice = item ? item.price : "";
+    
+    
+    const eventEmitter = new NativeEventEmitter();
+    const [name, setName] = useState(initialStateName);
+    const [quantity, setQuantity] = useState(initialStateQuantity)
+    const [price, setPrice] = useState(initialStatePrice)
     const [nameError, setNameError] = useState(false);
     const [quantityError, setQuantityError] = useState(false)
     const [priceError, setPriceError] = useState(false)
-
+    
     const validateFields = () => {
         let error = false;
         setNameError(false);
@@ -30,7 +37,7 @@ const Form = ({ hideModal, setFlagDB, flagDB }) => {
         }
         return error;
     }
-
+    
     const addClothes = () => {
         error = validateFields();
         if (error) {
@@ -41,15 +48,22 @@ const Form = ({ hideModal, setFlagDB, flagDB }) => {
             ]);
         }
         else {
-            insertClothes(name,quantity,price);
-            setFlagDB(!flagDB);
+            formAction === "add" 
+            ? 
+            insertClothes(name,quantity,price)
+            :   
+            updateClothes(name, quantity, price, item.id).then(() => {
+                let updatedItem = { ...item, name, quantity, price };
+                setItem(updatedItem);
+            });
+            eventEmitter.emit('reload-data', { data: 'Getting data from database' });
             cancel();
         }
     }
     const cancel = () => {
         hideModal()
     }
-
+    
     return (
         <>
             <TextInput
@@ -58,25 +72,25 @@ const Form = ({ hideModal, setFlagDB, flagDB }) => {
                 onChangeText={(text) => setName(text)}
                 style={styles.textArea}
                 error={nameError}
-            />
+                />
             <HelperText type="error" visible={nameError}>
                 El nombre está vacío
             </HelperText>
 
             <TextInput
                 label="Precio"
-                value={price}
+                value={price.toString()}
                 onChangeText={(text) => setPrice(text)}
                 keyboardType='numeric'
                 style={styles.textArea}
                 error={priceError}
-            />
+                />
             <HelperText type="error" visible={priceError}>
                 El precio está vacío
             </HelperText>
             <TextInput
                 label="Cantidad"
-                value={quantity}
+                value={quantity.toString()}
                 onChangeText={(text) => setQuantity(text)}
                 keyboardType='numeric'
                 style={styles.textArea}
@@ -86,10 +100,10 @@ const Form = ({ hideModal, setFlagDB, flagDB }) => {
                 La cantidad está vacía
             </HelperText>
             <View style={{ flexDirection: "row", justifyContent: 'center' }}>
-                <Button icon="check" mode="contained" onPress={addClothes} style={{ marginRight: 10 }} theme={{ colors: { primary: 'lightgreen' } }}>
-                    Añadir
+                <Button icon={ formAction === "add" ? "plus-circle" : "square-edit-outline" } mode="contained" onPress={addClothes} style={{ marginRight: 10 }} theme={{ colors: { primary: 'lightgreen' } }}>
+                    { formAction === "add" ? "Añadir" : "Editar" }
                 </Button>
-                <Button icon="delete" mode="contained" onPress={cancel} style={{ marginRight: 10 }} theme={{ colors: { primary: '#d9534f' } }} >
+                <Button icon="cancel" mode="contained" onPress={cancel} style={{ marginRight: 10 }} theme={{ colors: { primary: '#d9534f' } }} >
                     Cancelar
                 </Button>
             </View>

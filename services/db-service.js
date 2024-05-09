@@ -12,27 +12,36 @@ export const initDB = () => {
         );
     });
 };
-export const drop = () => {
-    db.transaction(tx => {
-        tx.executeSql(
-            "DROP TABLE CLOTHES;",
-            [],
-            () => console.log('Table created successfully'),
-            (_, err) => console.error('Failed to create table', err)
-        );
+
+export const updateClothes = (name, quantity, price, id) => {
+    return new Promise((resolve, reject) => {
+        db.transaction(tx => {
+            tx.executeSql(
+                `UPDATE clothes SET name = "${name}", 
+                quantity = ${quantity}, 
+                price = ${price} 
+                WHERE id = ${id};`,
+                [],
+                () => resolve('Clothes added successfully'),
+                (_, err) => reject('Failed to add the data', err)
+            );
+        });
     });
 };
 
 export const insertClothes = async (name, quantity, price) => {
-    db.transaction(tx => {
-        tx.executeSql(
-            `INSERT INTO clothes(NAME, QUANTITY, PRICE) VALUES("${name}",${quantity},${price});`,
-            [],
-            () => console.log('Clothes added succesfully'),
-            (_, err) => console.error('Failed to add the data', err)
-        );
+    return new Promise((resolve, reject) => {
+        db.transaction(tx => {
+            tx.executeSql(
+                `INSERT INTO clothes(NAME, QUANTITY, PRICE) VALUES("${name}",${quantity},${price});`,
+                [],
+                () => resolve('Clothes added successfully'),
+                (_, err) => reject('Failed to add the data', err)
+            );
+        });
     });
 };
+
 
 export const getAllClothes = async () => {
     return new Promise((resolve, reject) => {
