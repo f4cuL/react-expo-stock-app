@@ -1,74 +1,53 @@
-import * as SQLite from 'expo-sqlite/legacy';
+import Dexie from 'dexie';
 
-const db = SQLite.openDatabase('stock-db.db');
+export const db = new Dexie('stock-db');
 
 export const initDB = () => {
-    db.transaction(tx => {
-        tx.executeSql(
-            "CREATE TABLE IF NOT EXISTS clothes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, quantity INTEGER NOT NULL, price INTEGER NOT NULL);",
-            [],
-            () => console.log('Table created successfully'),
-            (_, err) => console.error('Failed to create table', err)
-        );
-    });
-};
-
-export const updateClothes = (name, quantity, price, id) => {
-    return new Promise((resolve, reject) => {
-        db.transaction(tx => {
-            tx.executeSql(
-                `UPDATE clothes SET name = "${name}", 
-                quantity = ${quantity}, 
-                price = ${price} 
-                WHERE id = ${id};`,
-                [],
-                () => resolve('Clothes updated successfully'),
-                (_, err) => reject('Failed to add the data', err)
-            );
-        });
-    });
-};
-
-export const insertClothes = async (name, quantity, price) => {
-    return new Promise((resolve, reject) => {
-        db.transaction(tx => {
-            tx.executeSql(
-                `INSERT INTO clothes(NAME, QUANTITY, PRICE) VALUES("${name}",${quantity},${price});`,
-                [],
-                () => resolve('Clothes added successfully'),
-                (_, err) => reject('Failed to add the data', err)
-            );
-        });
-    });
-};
-
-export const deleteClothes = async (id) => {
-    return new Promise((resolve, reject) => {
-        db.transaction(tx => {
-            tx.executeSql(
-                `DELETE FROM clothes WHERE id = ${id};`,
-                [],
-                () => resolve('Deleted item succefully'),
-                (_, err) => reject('Failed to add the data', err)
-            );
-        });
+    db.version(1).stores({
+        clothes: '++id, name, quantity, price' // Primary key and indexed props
     });
 };
 
 export const getAllClothes = async () => {
     return new Promise((resolve, reject) => {
-        db.transaction(tx => {
-            tx.executeSql(
-                "SELECT * FROM CLOTHES;",
-                [],
-                (_, result) => {
-                    resolve(result.rows._array);
-                },
-                (_, err) => {
-                    console.error('Failed to fetch clothes', err);
-                    reject(err);
-                }
-            );
-        });
+        db.clothes.toArray()
+            .then(data => {
+                console.log("getAllClothes")
+                resolve(data.sort((a, b) => a.name.localeCompare(b.name)))
+            })
+            .catch(error => reject(error));
+    });
+};
+
+export const insertClothes = async (name, quantity, price) => {
+    return new Promise((resolve, reject) => {
+        db.clothes.add({ name, quantity, price })
+            .then(id => {
+                console.log("insertClothes")
+                resolve(id)
+            })
+            .catch(error => reject(error))
+    });
+};
+
+export const updateClothes = (name, quantity, price, id) => {
+    return new Promise((resolve, reject) => {
+        db.clothes.put({ name, quantity, price }, id)
+            .then(id => {
+                console.log("updateClothes")
+                resolve(id)
+            })
+            .catch(error => reject(error))
+    });
+};
+
+export const deleteClothes = (id) => {
+    return new Promise((resolve, reject) => {
+        db.clothes.delete(id)
+            .then(id => {
+                console.log("deleteClothes")
+                resolve(id)
+            })
+            .catch(error => reject(error))
     });
 };

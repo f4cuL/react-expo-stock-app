@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet } from 'react-native';
 import { Button, Divider, List, MD3Colors, Modal, Portal } from 'react-native-paper';
 import Form from '../components/Form';
-import { getAllClothes, initDB } from '../services/db-service';
+import { getAllClothes, initDB, testdb, testdb2 } from '../services/db-service';
 import { NativeEventEmitter } from 'react-native';
 
 
