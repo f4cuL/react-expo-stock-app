@@ -32,7 +32,7 @@ export const insertClothes = async (name, quantity, price) => {
 
 export const updateClothes = (name, quantity, price, id) => {
     return new Promise((resolve, reject) => {
-        db.clothes.put({ name, quantity, price }, id)
+        db.clothes.put({ name, quantity, price, id })
             .then(id => {
                 console.log("updateClothes")
                 resolve(id)

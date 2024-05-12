@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, NativeEventEmitter, StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 import { Button, HelperText, TextInput } from 'react-native-paper';
 import { insertClothes, updateClothes } from '../services/db-service';
 import { emitRefreshDataFromDB } from '../services/event-service';
@@ -75,7 +75,6 @@ const Form = ({ hideModal, formAction, item, setItem }) => {
             <HelperText type="error" visible={nameError}>
                 El nombre está vacío
             </HelperText>
-
             <TextInput
                 label="Precio"
                 value={price.toString()}
@@ -90,6 +89,7 @@ const Form = ({ hideModal, formAction, item, setItem }) => {
             <TextInput
                 label="Cantidad"
                 value={quantity.toString()}
+                inputMode='numeric'
                 onChangeText={(text) => setQuantity(text)}
                 keyboardType='numeric'
                 style={styles.textArea}
